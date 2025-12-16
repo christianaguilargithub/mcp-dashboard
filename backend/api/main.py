@@ -18,6 +18,6 @@ def analyze(barangay: str):
         "floodLevel": "High",
         "evacuationCenters": [
             "Barangay Elementary School",
-            "Covered Court"
+            "Covered Court",
         ]
     }
