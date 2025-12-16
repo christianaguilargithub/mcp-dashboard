@@ -165,7 +165,85 @@ http://localhost:5173
 
 
 
+MCP Creation
 
 
 
+
+STEP 1 — Activate Conda Environment
+conda activate mcp-dashboard
+
+
+Confirm:
+
+python --version
+
+STEP 2 — Install MCP
+pip install mcp
+
+
+✅ This gives us the MCP server tools.
+
+STEP 3 — Create MCP Server Folder
+cd backend
+mkdir mcp
+cd mcp
+
+STEP 4 — Create MCP Server File (server.py)
+
+Here’s an example MCP server with PokéAPI tool and a mock evacuation tool:
+
+from mcp.server import Server
+from mcp.server.stdio import stdio_server
+import requests
+
+# Initialize MCP server
+server = Server("poke-mcp")
+
+# Tool 1: Get Pokémon info from PokéAPI
+@server.tool()
+def get_pokemon_info(name: str) -> dict:
+    """
+    Fetch Pokémon information by name from PokéAPI.
+    """
+    url = f"https://pokeapi.co/api/v2/pokemon/{name.lower()}"
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        return {"error": f"Pokemon '{name}' not found"}
+
+    data = response.json()
+    return {
+        "name": data["name"],
+        "id": data["id"],
+        "height": data["height"],
+        "weight": data["weight"],
+        "types": [t["type"]["name"] for t in data["types"]],
+    }
+
+# Tool 2: Find evacuation centers (mock)
+@server.tool()
+def find_evacuation_centers(barangay: str) -> list:
+    mock_data = {
+        "Manila": ["Manila Elementary School", "Barangay Covered Court"],
+        "Quezon City": ["QC High School", "Barangay Hall QC"]
+    }
+    return mock_data.get(barangay, ["No evacuation centers found"])
+
+# Run MCP server
+if __name__ == "__main__":
+    stdio_server(server)
+
+
+
+    STEP 5 — Run MCP Server
+python server.py
+
+MCP server is now live in stdio mode
+
+Exposes two tools:
+
+get_pokemon_info(name)
+
+find_evacuation_centers(barangay)
 

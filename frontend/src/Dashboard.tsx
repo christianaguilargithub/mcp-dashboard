@@ -4,6 +4,7 @@ import axios from "axios";
 interface Message {
   sender: "user" | "bot";
   text: string;
+  image?: string;
 }
 
 interface Chat {
@@ -44,13 +45,20 @@ export default function FullPageGPTDashboard() {
     try {
       const res = await axios.get("http://127.0.0.1:8000/analyze", { params: { barangay: trimmedBarangay } });
 
-      const floodLevel = res.data?.floodLevel || "Unknown";
+      const floodLevel = res.data?.floodLevel;
       const evacuationCenters = res.data?.evacuationCenters || [];
+      const image = res.data?.image;
 
-      const botText = `Flood Level: ${floodLevel}\nEvacuation Centers:\n• ${evacuationCenters.join("\n• ")}`;
+      let botText = "";
+      if (floodLevel) {
+        botText += `Flood Level: ${floodLevel}\n`;
+      }
+      if (evacuationCenters.length > 0) {
+        botText += `${floodLevel ? "Evacuation Centers:\n" : ""}• ${evacuationCenters.join("\n• ")}`;
+      }
 
       // Add bot message instantly
-      addMessage({ sender: "bot", text: botText });
+      addMessage({ sender: "bot", text: botText, image });
 
     } catch (error) {
       console.error("API call failed:", error);
@@ -81,7 +89,7 @@ export default function FullPageGPTDashboard() {
           padding: 16,
         }}
       >
-        <h2 style={{ marginBottom: 16 }}>Evacuation GPT</h2>
+        <h2 style={{ marginBottom: 16 }}>MCP TESTER CHAT</h2>
         <button
           onClick={newChat}
           style={{
@@ -140,6 +148,13 @@ export default function FullPageGPTDashboard() {
                   boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
                 }}
               >
+                {msg.image && (
+                  <img 
+                    src={msg.image} 
+                    alt="Pokemon" 
+                    style={{ width: 96, height: 96, marginBottom: 8, borderRadius: 8 }}
+                  />
+                )}
                 {msg.text}
               </div>
             </div>
